@@ -7,21 +7,26 @@ output:
 
 
 ## Loading and preprocessing the data
-```{r warning=FALSE,message=FALSE}
+
+```r
 library(tidyverse)
 library(lubridate)
 data=read.csv("activity.csv",stringsAsFactors = F)
-
 ```
 
 
 ## What is mean total number of steps taken per day?
-```{r}
+
+```r
 data%>%
     group_by(date)%>%
     summarise(tot_steps=sum(steps,na.rm = T))%>%
     ggplot()+geom_histogram(aes(x=tot_steps),bins=50 )
-    
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+```r
 mn=data%>%
     na.omit()%>%
     mutate(date=ymd(date))%>%
@@ -30,10 +35,11 @@ mn=data%>%
     summarise(mean=mean(steps),median=median(steps))
 ```
 
-The mean is `r mn[1]` and medain is `r mn[2]`.
+The mean is 1.0766189\times 10^{4} and medain is 10765.
 
 ## What is the average daily activity pattern?
-```{r}
+
+```r
 data%>%
     na.omit()%>%
     group_by(interval)%>%
@@ -44,9 +50,12 @@ data%>%
     theme_bw()
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 
 ## Imputing missing values
-```{r}
+
+```r
 empty=sapply(data,function(x){
     sum(is.na(x))
 })
@@ -65,22 +74,26 @@ data_imp%>%
     group_by(date)%>%
     summarise(tot_steps=sum(steps,na.rm = T))%>%
     ggplot()+geom_histogram(aes(x=tot_steps),bins=50 ) 
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+```r
 mn_imp=data_imp%>%
     na.omit()%>%
     mutate(date=ymd(date))%>%
     group_by(date)%>%
     summarise(steps=sum(steps))%>%
     summarise(mean=mean(steps),median=median(steps))
-
 ```
 
-There are `r sum(empty)` NA's in the dataset. These need to be filled with median of the steps for the 5 min interval.
+There are 2304 NA's in the dataset. These need to be filled with median of the steps for the 5 min interval.
 
-After imputing the mean is `r mn_imp[1]` and median is `r mn_imp[2]`.
+After imputing the mean is 9503.8688525 and median is 10395.
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 data_imp%>%
     mutate(date=ymd(date),day=weekdays(date),week=day %in% weekdays(as.Date("2019-04-27")+0:1))%>%
     mutate(week=factor(week,labels = c("weekday","weekend")))%>%
@@ -88,6 +101,6 @@ data_imp%>%
     summarise(avg_steps=mean(steps))%>%
     ggplot()+geom_line(aes(x=interval,y=avg_steps))+
         facet_grid(week~.)
-    
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
